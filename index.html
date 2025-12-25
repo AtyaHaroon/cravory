@@ -383,7 +383,24 @@
         transform: translateX(5px);
         color: #8b5a2b;
       }
+      /* ADD THESE NEW LINES HERE - Mobile touch effects */
+      .link-btn:active {
+        transform: translateY(-3px) scale(0.98);
+        box-shadow: 0 8px 20px rgba(121, 85, 72, 0.12);
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
 
+      .link-btn.active-touch {
+        transform: translateY(-3px) scale(0.98);
+        box-shadow: 0 8px 20px rgba(121, 85, 72, 0.12);
+      }
+
+      .floating-item.active-touch {
+        opacity: 0.2 !important;
+        filter: drop-shadow(0 5px 8px rgba(94, 64, 41, 0.25)) !important;
+        transform: scale(1.1) !important;
+        transition: all 0.2s ease !important;
+      }
       .info-box {
         background: rgba(255, 253, 250, 0.7);
         border-radius: 16px;
@@ -530,6 +547,10 @@
           font-size: 12px;
           margin-top: 10px;
         }
+         .link-btn:active,
+        .link-btn.active-touch {
+          transform: translateY(-2px) scale(0.99);
+        }
       }
 
       @media (max-width: 420px) {
@@ -558,7 +579,7 @@
           font-size: 11px;
         }
         .highlight-text {
-          font-size: 14px;
+          font-size: 12px;
         }
         .links-container {
           margin: 12px 0;
@@ -569,8 +590,8 @@
         }
 
         .link-text small {
-          font-size: 11px;
-          margin-top: 1px;
+          font-size: 12px;
+          margin-top: 0px;
         }
         .icon-container {
           width: 45px;
@@ -594,6 +615,11 @@
         .footer-text {
           font-size: 12px;
           margin-top: 10px;
+        }
+        
+        .link-btn:active,
+        .link-btn.active-touch {
+          transform: translateY(-1px) scale(0.995);
         }
       }
     </style>
@@ -675,13 +701,15 @@
       <h1 class="brand-name">CRAVORY</h1>
       <p class="slogan">SATISFY YOUR CRAVINGS</p>
       <p class="tagline">
-        Karachi's favorite homemade cookies & dumplings. Crafted with love,
-        delivered with care.
+        Karachi's favorite homemade flavours. Freshly made. straight to your
+        door.
       </p>
 
       <div class="highlight-box">
         <div class="highlight-text">
-          <i class="fas fa-star"></i>PRE-ORDERS ONLY<i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>PREPAID ORDERS ONLY<i
+            class="fas fa-star"
+          ></i>
         </div>
       </div>
 
@@ -724,7 +752,7 @@
           </div>
           <div class="link-text">
             WhatsApp
-            <small>For orders & inquiries</small>
+            <small>Orders & inquiries</small>
           </div>
           <div class="arrow">
             <i class="fas fa-chevron-right"></i>
@@ -765,13 +793,52 @@
       <p class="footer-text">© 2025 CRAVORY | Satisfy Your Cravings</p>
     </div>
 
-    <script>
+        <script>
       // Interactive floating items
       document.addEventListener("DOMContentLoaded", function () {
         const floatingItems = document.querySelectorAll(".floating-item");
+        const buttons = document.querySelectorAll(".link-btn");
+        
+        // Check if device is touch-enabled
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Touch feedback for buttons
+        buttons.forEach((button) => {
+          if (isTouchDevice) {
+            // For touch devices
+            button.addEventListener('touchstart', function(e) {
+              e.preventDefault();
+              this.classList.add('active-touch');
+            });
+            
+            button.addEventListener('touchend', function(e) {
+              this.classList.remove('active-touch');
+              // Add a small delay before navigation for better UX
+              setTimeout(() => {
+                if (this.href) {
+                  window.location.href = this.href;
+                }
+              }, 150);
+            });
+            
+            button.addEventListener('touchcancel', function() {
+              this.classList.remove('active-touch');
+            });
+          }
+          
+          // For mouse click (desktop)
+          button.addEventListener("click", function (e) {
+            if (!isTouchDevice) {
+              this.style.transform = "translateY(-5px) scale(0.98)";
+              setTimeout(() => {
+                this.style.transform = "";
+              }, 200);
+            }
+          });
+        });
 
         floatingItems.forEach((item) => {
-          // Make items slightly interactive
+          // Desktop hover effects
           item.addEventListener("mouseenter", function () {
             this.style.opacity = "0.15";
             this.style.filter = "drop-shadow(0 4px 6px rgba(94, 64, 41, 0.2))";
@@ -781,6 +848,22 @@
             this.style.opacity = "0.1";
             this.style.filter = "drop-shadow(0 2px 3px rgba(94, 64, 41, 0.1))";
           });
+          
+          // Mobile touch effects
+          if (isTouchDevice) {
+            item.addEventListener('touchstart', function(e) {
+              e.preventDefault();
+              this.classList.add('active-touch');
+            });
+            
+            item.addEventListener('touchend', function() {
+              this.classList.remove('active-touch');
+            });
+            
+            item.addEventListener('touchcancel', function() {
+              this.classList.remove('active-touch');
+            });
+          }
 
           // Add random animation variations
           const randomDelay = Math.random() * 10;
@@ -788,21 +871,14 @@
           item.style.animationDelay = `${randomDelay}s`;
           item.style.animationDuration = `${randomDuration}s`;
         });
-
-        // Add click effect to buttons
-        const buttons = document.querySelectorAll(".link-btn");
-        buttons.forEach((button) => {
-          button.addEventListener("click", function (e) {
-            // Add subtle click effect
-            this.style.transform = "translateY(-2px) scale(0.99)";
-
-            setTimeout(() => {
-              this.style.transform = "";
-            }, 150);
-          });
+        
+        // Prevent context menu on long press for better UX
+        document.addEventListener('contextmenu', function(e) {
+          if (isTouchDevice) {
+            e.preventDefault();
+          }
         });
       });
     </script>
   </body>
 </html>
-
